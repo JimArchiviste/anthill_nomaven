@@ -3,6 +3,7 @@ package places;
 
 public class Site {
 	
+	//distance is also the ID
 	private int distance;
 	private int amount;
 

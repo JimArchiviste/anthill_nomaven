@@ -24,18 +24,17 @@ public class Worker extends Ant {
 				}
 				else if (food_taken == -1) {
 					goBack();
-					this.sendMessage(new Message(this, this.anthill, "Empty Site : " + this.position.getSite().getDistance()));
 				}
 				else if (food_taken < this.capacity) {
 					this.food = food_taken;
-					this.sendMessage(new Message(this, this.anthill, "Empty Site" + this.position.getSite().getDistance()));
+					this.sendMessage(new Message(this, this.anthill, "Empty Site", "" + this.position.getSite().getDistance()));
 				}
 				else {
 					this.food = food_taken;
 				}
 				this.position.setCome();
 			}
-			else if (!this.position.getSite().equals(this.anthill.getAvailableSite())) {
+			else if (this.position.getSite().getAmount() == 0) {
 				goBack();
 				this.position.setCome();
 			}
@@ -43,15 +42,14 @@ public class Worker extends Ant {
 		}
 		else {
 			if (this.position.getPosition() == 0) {
-				//this.anthill.addFood(this.food);
-				//this.capacity = 0;
-				this.sendMessage(new Message(this, this.anthill, "Food Repository : " + this.food));
+				this.sendMessage(new Message(this, this.anthill, "Food Repository", "" + this.food));
+				this.food = 0;
 				this.position = null;
-				this.position.setCome();
 				return true;
 			}
 			else goBack();
 		}
 		return false;
 	}
+	
 }

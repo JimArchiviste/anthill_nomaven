@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import mails.Message;
 import mails.MessageBox;
+import main.Main;
 import ants.*;
 
 public class Anthill {
@@ -11,10 +12,11 @@ public class Anthill {
 	private Queen queen;
 	private ArrayList<ArrayList<Ant>> inactive_ants;
 	private ArrayList<ArrayList<Ant>> active_ants;
+	private ArrayList<Ant> dead_ants;
 	private MessageBox messagebox;
 	private ArrayList<Site> sites;
 	private int food;
-	private Site availableSite;
+	private int availableSite;
 	
 	public Anthill (int nbCycle) {
 		this.queen = new Queen(this, nbCycle);
@@ -31,13 +33,13 @@ public class Anthill {
 			sites.add(site);
 		}
 		this.food = 0;
-		this.availableSite = this.sites.get(0);
+		this.availableSite = 0;
+		this.dead_ants = new ArrayList<Ant>();
 	}
 
-	public void newCycle(int cycle) {
+	public void newCycle() {
 		//Worker and Soldier
-		this.queen.older();
-		if (cycle % 5 == 0) {
+		if (Main.getNbCycle() % 5 == 0) {
 			this.queen.sendMessage(new Message(this.queen, this, "Born Ants"));
 		}
 		for (int i = 0; i < 2; i++) {
@@ -48,86 +50,105 @@ public class Anthill {
 			temporary_ants.add(inactives);
 			while (!this.active_ants.get(i).isEmpty()) {
 				Ant that = this.active_ants.get(i).get(0);
-				if (!that.older()) {
-					if(!that.moveOn()){
-						//active
-						temporary_ants.get(0).add(that);
-					}
-					else {
-						//inactive
-						temporary_ants.get(1).add(that);
-					}
-					this.active_ants.get(i).remove(0);
+				if(!that.moveOn()){
+					//active
+					temporary_ants.get(0).add(that);
 				}
+				else {
+					//inactive
+					temporary_ants.get(1).add(that);
+				}
+				this.active_ants.get(i).remove(0);
 			}
 			while (!this.inactive_ants.get(i).isEmpty()) {
-				if (this.inactive_ants.get(i).isEmpty()) break;
+				//if (this.inactive_ants.get(i).isEmpty()) break;
 				Ant that = this.inactive_ants.get(i).get(0);
-				if (!that.older()) {
-					that.goToSite(this.availableSite);
-					temporary_ants.get(0).add(that);
-					this.inactive_ants.get(i).remove(0);
-				}
+				that.goToSite(this.sites.get(this.availableSite));
+				temporary_ants.get(0).add(that);
+				this.inactive_ants.get(i).remove(0);
 			}
 			for (Ant ant : temporary_ants.get(0)) {
-				this.active_ants.get(i).add(ant);
+				if (!ant.getOlder()) {
+					this.active_ants.get(i).add(ant);	
+				}
 			}
 			for (Ant ant : temporary_ants.get(1)) {
-				this.inactive_ants.get(i).add(ant);
+				if (!ant.getOlder()) {
+					this.inactive_ants.get(i).add(ant);	
+				}
 			}
 		}
-		//Soldier
-		/**temporary_ants = new ArrayList<ArrayList<Ant>>();
-		actives = new ArrayList<Ant>();
-		inactives = new ArrayList<Ant>();
+
+		ArrayList<ArrayList<Ant>> temporary_ants = new ArrayList<ArrayList<Ant>>();
+		ArrayList<Ant> actives = new ArrayList<Ant>();
+		ArrayList<Ant> inactives = new ArrayList<Ant>();
 		temporary_ants.add(actives);
 		temporary_ants.add(inactives);
-		while (!this.active_ants.get(1).isEmpty()) {
-			Ant that = this.active_ants.get(1).get(0);
-			if(!that.moveOn()){
-				//active
-				temporary_ants.get(0).add(that);
+		//Healer
+		while (!this.active_ants.get(2).isEmpty()) {
+			Healer that = (Healer) this.active_ants.get(2).get(0);
+			if(that.getPosition() == null && !(that.getTarget().getPosition() == null)) {
+				that.goToSite(that.getTarget().getPosition().getSite());
 			}
 			else {
-				//inactive
-				temporary_ants.get(1).add(that);
+				if(!that.moveOn()){
+					//active
+					temporary_ants.get(0).add(that);
+				}
+				else {
+					//inactive
+					temporary_ants.get(1).add(that);
+				}
+				this.active_ants.get(2).remove(0);
 			}
-			this.active_ants.get(1).remove(0);
-		}
-		while (!this.inactive_ants.get(1).isEmpty()) {
-			if (this.inactive_ants.get(1).isEmpty()) break;
-			Ant that = this.inactive_ants.get(1).get(0);
-			that.goToSite(this.availableSite);
-			temporary_ants.get(1).add(that);
-			this.inactive_ants.get(1).remove(0);
 		}
 		for (Ant ant : temporary_ants.get(0)) {
-			this.active_ants.get(1).add(ant);
+			if (!ant.getOlder()) {
+				this.active_ants.get(2).add(ant);	
+			}
 		}
 		for (Ant ant : temporary_ants.get(1)) {
-			this.inactive_ants.get(1).add(ant);
-		}**/
-		//Healer
-		for (Ant ant : this.inactive_ants.get(2)) {			
+			if (!ant.getOlder()) {
+				this.inactive_ants.get(2).add(ant);	
+			}
 		}
+			
+		this.queen.getOlder();	
 	}
 
-	/**private Site availableSite() {
-		for (Site site : this.sites) {
-			if (site.getAmount() > 0) return site;
-		}
-		return null;
-	}**/
 
 	public MessageBox getMessageBox() {
 		return this.messagebox;
 	}
+	
 	public void addFood(int food) {
 		this.food += food;
 	}
 
-	public Site getAvailableSite() {
-		return this.availableSite;
+	public void setAvailableSite() {
+		this.availableSite += 1;
+		if (this.availableSite == 5) this.availableSite = 0;
 	}
 
+	public void sendHealer(Ant bleeding) {
+		if (!this.inactive_ants.get(2).isEmpty()) {
+			Healer healer = (Healer) this.inactive_ants.get(2).get(0);
+			healer.setTarget(bleeding);
+			this.active_ants.get(2).add(healer);
+			this.inactive_ants.get(2).remove(0);
+		}
+	}
+
+	public void addDead(Ant dead) {
+		this.dead_ants.add(dead);
+	}
+
+	public void addAnts() {
+		ArrayList<ArrayList<Ant>> newBorn = this.queen.bornAnts();
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < newBorn.get(i).size(); j++) {
+				this.inactive_ants.get(i).add(newBorn.get(i).get(j));
+			}
+		}
+	}
 }

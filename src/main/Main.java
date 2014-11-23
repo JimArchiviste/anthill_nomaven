@@ -6,6 +6,12 @@ import mails.Message;
 import places.Anthill;
 
 public class Main {
+	
+	private static int nbCycle = 0;
+
+	public static int getNbCycle() {
+		return nbCycle;
+	}
 
 	public static void main(String[] args) {
 		
@@ -17,14 +23,14 @@ public class Main {
 		}
 
 		//Do all the cycles
-		for (int i = 0 ; i < nbCycle ; i++) {
-			System.out.println("------------ Start of a new cycle #" + (i+1) + " ------------\n");
+		for (; Main.nbCycle < nbCycle ; Main.nbCycle++) {
+			System.out.println("------------ Start of a new cycle #" + (Main.nbCycle+1) + " ------------\n");
 			int j  = 1;
 			//Each anthill does a cycle
 			for (Anthill anthill : anthills) {
 				System.out.println("------------ Anthill n°" + j + " ------------" );
 				//The anthill does what it has to do
-				anthill.newCycle(i);
+				anthill.newCycle();
 				System.out.println("== Management of the messages");
 				//All the messages for the anthill are managed
 				while (!anthill.getMessageBox().isEmpty()) {
@@ -37,11 +43,11 @@ public class Main {
 			}
 			System.out.println("------------ End of the cycle ------------\n\n");
 			
-			try {
+			/**try {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
+			}**/
 		}
 	}
 

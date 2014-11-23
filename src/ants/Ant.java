@@ -24,13 +24,17 @@ public abstract class Ant {
 		this.position.add(this.speed);
 	}
 	
+	public Position getPosition() {
+		return position;
+	}
+
 	protected void goBack() {
 		this.position.remove(this.speed);
 	}
 
 	public abstract boolean moveOn();
 	
-	public boolean older() {
+	public boolean getOlder() {
 		this.life -= 1;
 		if (this.life == 0) {
 			this.sendMessage(new Message(this, this.anthill, "Dead"));

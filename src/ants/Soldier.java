@@ -16,7 +16,7 @@ public class Soldier extends Ant {
 				goBack();
 				this.position.setCome();
 			}
-			else if (!this.position.getSite().equals(this.anthill.getAvailableSite())) {
+			else if (this.position.getSite().getAmount() == 0) {
 				goBack();
 				this.position.setCome();
 			}
@@ -29,9 +29,8 @@ public class Soldier extends Ant {
 		}
 		else {
 			goBack();
-			if (this.position.getPosition() == 0) {
+			if (this.position.getPosition() <= 0) {
 				this.position = null;
-				this.position.setCome();
 				return true;
 			}
 		}
