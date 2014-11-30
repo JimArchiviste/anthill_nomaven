@@ -8,10 +8,16 @@ public class Message {
 	private Ant from;
 	private Anthill to;
 	private String object;
-	private String message;
+	private int message;
 	private Ant attachment;
 
 
+	/**
+	 * Standard constructor
+	 * @param from
+	 * @param to
+	 * @param object
+	 */
 	public Message(Ant from, Anthill to, String object) {
 		super();
 		this.from = from;
@@ -19,7 +25,14 @@ public class Message {
 		this.object = object;
 	}
 
-	public Message(Ant from, Anthill to, String object, String message) {
+	/**
+	 * Constructor for the food repository
+	 * @param from
+	 * @param to
+	 * @param object
+	 * @param message
+	 */
+	public Message(Ant from, Anthill to, String object, int message) {
 		super();
 		this.from = from;
 		this.to = to;
@@ -27,6 +40,13 @@ public class Message {
 		this.message = message;
 	}
 
+	/**
+	 * Constructor for the dead message
+	 * @param from
+	 * @param to
+	 * @param object
+	 * @param attachment
+	 */
 	public Message(Healer from, Anthill to, String object, Ant attachment) {
 		super();
 		this.from = from;
@@ -35,18 +55,28 @@ public class Message {
 		this.attachment = attachment;
 	}
 
-	public void action() {
+	/**
+	 * Do the action of the message
+	 * @return boolean
+	 */
+	public boolean action() {
 		switch (this.object) {
 			case "Food Repository" :
-				this.to.addFood(Integer.parseInt(this.message));
+				System.out.println(this.message + " foods have been added to the anthill");
+				this.to.addFood(this.message);
 				break;
 			case "Dead" :
-				this.to.sendHealer(this.from);
+				//If there is no healer available
+				if(!this.to.sendHealer(this.from)) {
+					System.out.println("An healer have been sent to the ant " + this.from.getId());
+					return true;
+				}
 				break;
 			case "Born Ants" :
 				this.to.addAnts();
 				break;
 			case "CareOK" :
+				System.out.println("The healer " + this.from.getId() + " brought back the ant " + this.attachment.getId());
 				this.to.addDead(this.attachment);
 				break;
 			case "Empty Site" :
@@ -55,6 +85,7 @@ public class Message {
 			default :
 				break;
 		}
+		return false;
 		
 	}
 
